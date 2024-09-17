@@ -42,14 +42,7 @@
         <section id="events">
             <h2>Eventos Recientes</h2>
             <div id="map"></div>
-            <div class="event-card">
-                <h3>Incendio en Australia</h3>
-                <p><strong>Fecha:</strong> 15 de septiembre de 2024</p>
-                <p><strong>Ubicación:</strong> -27.4676, 153.0278</p>
-                <p><strong>Descripción:</strong> Un gran incendio forestal está afectando el sur de Australia.</p>
-                <div class="event-severity high">Alta Gravedad</div>
-            </div>
-            <!-- Más eventos aquí -->
+            <!-- Más eventos aquí si es necesario -->
         </section>
         
         <section id="about">
@@ -112,33 +105,34 @@
                 .bindPopup(`<h3>${title}</h3><p>${description}</p>`);
         }
 
-        // Ejemplo de datos de eventos
-        const events = [
-            {
-                title: 'Incendio en Australia',
-                description: 'Un gran incendio forestal está afectando el sur de Australia.',
-                latitude: -27.4676,
-                longitude: 153.0278,
-                type: 'fire'
-            },
-            {
-                title: 'Tormenta en el Atlántico',
-                description: 'Una tormenta tropical está avanzando hacia el oeste.',
-                latitude: 15.0,
-                longitude: -60.0,
-                type: 'storm'
-            },
-            {
-                title: 'Terremoto en Japón',
-                description: 'Un terremoto de magnitud 6.7 ha afectado el noreste de Japón.',
-                latitude: 36.0,
-                longitude: 138.0,
-                type: 'earthquake'
-            }
-        ];
+        // Obtener eventos de la API EONET
+        function fetchEvents() {
+            const server = "https://eonet.gsfc.nasa.gov/api/v3/events";
+            
+            fetch(server)
+                .then(response => response.json())
+                .then(data => {
+                    const events = data.events.map(event => {
+                        const { title, description, geometry, categories } = event;
+                        const type = categories.length > 0 ? categories[0].title.toLowerCase() : 'fire'; // Usa 'fire' como valor por defecto
+                        const location = geometry[0];
+                        return {
+                            title,
+                            description,
+                            latitude: location.coordinates[1],
+                            longitude: location.coordinates[0],
+                            type
+                        };
+                    });
 
-        // Agregar todos los eventos al mapa
-        events.forEach(addEventToMap);
+                    // Agregar todos los eventos al mapa
+                    events.forEach(addEventToMap);
+                })
+                .catch(error => console.error('Error fetching events:', error));
+        }
+
+        // Llamar a la función para obtener eventos y agregar al mapa
+        fetchEvents();
     </script>
 </body>
 </html>
