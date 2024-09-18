@@ -18,6 +18,21 @@
         .leaflet-popup-content {
             text-align: center;
         }
+        /* Estilos adicionales para el botón */
+        #loadMore {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #loadMore:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -42,7 +57,8 @@
         <section id="events">
             <h2>Eventos Recientes</h2>
             <div id="map"></div>
-            <!-- Más eventos aquí si es necesario -->
+            <!-- Botón para cargar más eventos -->
+            <button id="loadMore" onclick="loadMoreEvents()">Cargar más eventos</button>
         </section>
         
         <section id="about">
@@ -64,18 +80,13 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- Custom JS -->
     <script>
-        // Inicializar el mapa
-        const map = L.map('map').setView([20.0, 0.0], 2); // Vista global
-
-        // Agregar la capa del mapa base
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        let eventsData = []; // Almacena todos los eventos obtenidos de la API
+        let currentPage = 0; // Página actual, comenzamos con la primera
+        const eventsPerPage = 10; // Número de eventos por página
 
         // Definir los iconos para cada tipo de evento
         const icons = {
-            fire: L.icon({
+            wildfire: L.icon({
                 iconUrl: 'https://cdn-icons-png.flaticon.com/512/753/753945.png', // Icono de fuego
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
@@ -98,38 +109,77 @@
         // Función para agregar eventos al mapa
         function addEventToMap(event) {
             const { latitude, longitude, title, description, type } = event;
-            const icon = icons[type] || icons.fire; // Usa un icono predeterminado si el tipo no está definido
+            const icon = icons[type] || icons.wildfire; // Usa un icono predeterminado si el tipo no está definido
 
             L.marker([latitude, longitude], { icon })
                 .addTo(map)
                 .bindPopup(`<h3>${title}</h3><p>${description}</p>`);
         }
 
-        // Obtener eventos de la API EONET
+        // Función para mostrar eventos en bloques (paginación)
+        function displayEvents(page) {
+            const start = page * eventsPerPage;
+            const end = start + eventsPerPage;
+            const eventsToDisplay = eventsData.slice(start, end);
+
+            eventsToDisplay.forEach(addEventToMap);
+            
+            // Si no hay más eventos, ocultar el botón de cargar más
+            if (end >= eventsData.length) {
+                document.getElementById('loadMore').style.display = 'none';
+            }
+        }
+
+        // Obtener eventos de la API EONET y cargarlos en el mapa por páginas
         function fetchEvents() {
             const server = "https://eonet.gsfc.nasa.gov/api/v3/events";
-            
+
             fetch(server)
                 .then(response => response.json())
                 .then(data => {
-                    const events = data.events.map(event => {
+                    eventsData = data.events.map(event => {
                         const { title, description, geometry, categories } = event;
-                        const type = categories.length > 0 ? categories[0].title.toLowerCase() : 'fire'; // Usa 'fire' como valor por defecto
+                        let type = 'wildfire'; // Valor por defecto
+                        if (categories.length > 0) {
+                            const categoryTitle = categories[0].title.toLowerCase();
+                            if (categoryTitle.includes('storm')) {
+                                type = 'storm';
+                            } else if (categoryTitle.includes('earthquake')) {
+                                type = 'earthquake';
+                            } else if (categoryTitle.includes('wildfire')) {
+                                type = 'wildfire';
+                            }
+                        }
                         const location = geometry[0];
                         return {
                             title,
-                            description,
+                            description: description || "No hay descripción disponible.",
                             latitude: location.coordinates[1],
                             longitude: location.coordinates[0],
                             type
                         };
                     });
 
-                    // Agregar todos los eventos al mapa
-                    events.forEach(addEventToMap);
+                    // Mostrar la primera página de eventos
+                    displayEvents(currentPage);
                 })
                 .catch(error => console.error('Error fetching events:', error));
         }
+
+        // Función para cargar más eventos
+        function loadMoreEvents() {
+            currentPage++;
+            displayEvents(currentPage);
+        }
+
+        // Inicializar el mapa
+        const map = L.map('map').setView([20.0, 0.0], 2); // Vista global
+
+        // Agregar la capa del mapa base
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
         // Llamar a la función para obtener eventos y agregar al mapa
         fetchEvents();
