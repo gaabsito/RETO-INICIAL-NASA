@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,26 +16,13 @@
             width: 100%;
             margin-top: 20px;
         }
+
         .leaflet-popup-content {
             text-align: center;
         }
-        /* Estilos adicionales para el botón */
-        #loadMore {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        #loadMore:hover {
-            background-color: #0056b3;
-        }
     </style>
 </head>
+
 <body>
     <header>
         <h1>Seguimiento de Eventos Naturales</h1>
@@ -47,43 +35,40 @@
             </ul>
         </nav>
     </header>
-    
+
     <main>
         <section id="home">
             <h2>Bienvenido a la Plataforma de Monitoreo de Eventos</h2>
             <p>Analiza los eventos naturales en tiempo real y mantente informado.</p>
         </section>
-        
+
         <section id="events">
             <h2>Eventos Recientes</h2>
             <div id="map"></div>
-            <!-- Botón para cargar más eventos -->
-            <button id="loadMore" onclick="loadMoreEvents()">Cargar más eventos</button>
         </section>
-        
+
         <section id="about">
             <h2>Acerca de</h2>
-            <p>Esta plataforma está diseñada para ayudar a los usuarios a monitorear y entender eventos naturales con datos proporcionados por la NASA.</p>
+            <p>Esta plataforma está diseñada para ayudar a los usuarios a monitorear y entender eventos naturales con
+                datos proporcionados por la NASA.</p>
         </section>
-        
+
         <section id="contact">
             <h2>Contacto</h2>
             <p>Para consultas, por favor contacta a: info@example.com</p>
         </section>
     </main>
-    
+
     <footer>
         <p>&copy; 2024 Seguimiento de Eventos Naturales. Todos los derechos reservados.</p>
     </footer>
-    
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- Custom JS -->
     <script>
         let eventsData = []; // Almacena todos los eventos obtenidos de la API
-        let currentPage = 0; // Página actual, comenzamos con la primera
-        const eventsPerPage = 10; // Número de eventos por página
-
+        let markersLayer = L.layerGroup(); // Capa para almacenar y controlar los marcadores
         // Definir los iconos para cada tipo de evento
         const icons = {
             wildfire: L.icon({
@@ -105,40 +90,56 @@
                 popupAnchor: [0, -32]
             })
         };
-
-        // Función para agregar eventos al mapa
+        // Inicializar el mapa
+        const map = L.map('map').setView([20.0, 0.0], 2); // Vista global
+        // Agregar la capa del mapa base
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        // Agregar la capa de marcadores al mapa
+        markersLayer.addTo(map);
+        // Función para agregar eventos al mapa dentro del área visible
         function addEventToMap(event) {
-            const { latitude, longitude, title, description, type } = event;
+            const {
+                latitude,
+                longitude,
+                title,
+                description,
+                type
+            } = event;
             const icon = icons[type] || icons.wildfire; // Usa un icono predeterminado si el tipo no está definido
-
-            L.marker([latitude, longitude], { icon })
-                .addTo(map)
+            // Crear y agregar marcador
+            const marker = L.marker([latitude, longitude], {
+                    icon
+                })
                 .bindPopup(`<h3>${title}</h3><p>${description}</p>`);
+            markersLayer.addLayer(marker);
         }
-
-        // Función para mostrar eventos en bloques (paginación)
-        function displayEvents(page) {
-            const start = page * eventsPerPage;
-            const end = start + eventsPerPage;
-            const eventsToDisplay = eventsData.slice(start, end);
-
-            eventsToDisplay.forEach(addEventToMap);
-            
-            // Si no hay más eventos, ocultar el botón de cargar más
-            if (end >= eventsData.length) {
-                document.getElementById('loadMore').style.display = 'none';
-            }
+        // Función para filtrar eventos dentro de los límites visibles del mapa
+        function displayVisibleEvents() {
+            const bounds = map.getBounds(); // Obtener los límites actuales del mapa
+            // Limpiar los marcadores anteriores
+            markersLayer.clearLayers();
+            // Filtrar eventos dentro de los límites y agregar al mapa
+            const visibleEvents = eventsData.filter(event => {
+                return bounds.contains([event.latitude, event.longitude]);
+            });
+            visibleEvents.forEach(addEventToMap);
         }
-
-        // Obtener eventos de la API EONET y cargarlos en el mapa por páginas
+        // Obtener eventos de la API EONET
         function fetchEvents() {
             const server = "https://eonet.gsfc.nasa.gov/api/v3/events";
-
             fetch(server)
                 .then(response => response.json())
                 .then(data => {
                     eventsData = data.events.map(event => {
-                        const { title, description, geometry, categories } = event;
+                        const {
+                            title,
+                            description,
+                            geometry,
+                            categories
+                        } = event;
                         let type = 'wildfire'; // Valor por defecto
                         if (categories.length > 0) {
                             const categoryTitle = categories[0].title.toLowerCase();
@@ -159,30 +160,16 @@
                             type
                         };
                     });
-
-                    // Mostrar la primera página de eventos
-                    displayEvents(currentPage);
+                    // Mostrar los eventos dentro de los límites visibles inicialmente
+                    displayVisibleEvents();
                 })
                 .catch(error => console.error('Error fetching events:', error));
         }
-
-        // Función para cargar más eventos
-        function loadMoreEvents() {
-            currentPage++;
-            displayEvents(currentPage);
-        }
-
-        // Inicializar el mapa
-        const map = L.map('map').setView([20.0, 0.0], 2); // Vista global
-
-        // Agregar la capa del mapa base
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Llamar a la función para obtener eventos y agregar al mapa
+        // Escuchar los eventos de zoom y movimiento del mapa
+        map.on('moveend', displayVisibleEvents);
+        // Llamar a la función para obtener eventos
         fetchEvents();
     </script>
 </body>
+
 </html>
