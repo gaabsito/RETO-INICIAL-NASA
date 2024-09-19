@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <!-- Leaflet.markercluster CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <style>
         #map {
             height: 600px;
@@ -75,10 +78,12 @@
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet.markercluster JS -->
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
     <!-- Custom JS -->
     <script>
         let eventsData = []; // Almacena todos los eventos obtenidos de la API
-        let markersLayer = L.layerGroup(); // Capa para almacenar y controlar los marcadores
+        let markersLayer = L.markerClusterGroup(); // Agrupación de marcadores
 
         // Definir los iconos para cada categoría de evento
         const icons = {
@@ -169,30 +174,26 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        markersLayer.addTo(map);
-
-        // Función para agregar eventos al mapa
-        function addEventToMap(event) {
-            const { latitude, longitude, title, description, type } = event;
-            const icon = icons[type] || icons.wildfires;
-            const marker = L.marker([latitude, longitude], { icon })
-                .bindPopup(`<h3>${title}</h3><p>${description}</p>`);
-            markersLayer.addLayer(marker);
-        }
-
-        // Función para filtrar eventos visibles
+        // Función para mostrar eventos visibles en el mapa
         function displayVisibleEvents() {
-            const bounds = map.getBounds();
-            markersLayer.clearLayers();
-            const visibleEvents = eventsData.filter(event => {
-                return bounds.contains([event.latitude, event.longitude]);
+            markersLayer.clearLayers(); // Limpiar los marcadores anteriores
+
+            eventsData.forEach(event => {
+                const marker = L.marker([event.latitude, event.longitude], {
+                    icon: icons[event.type] || icons['wildfires'] // Asignar el icono según el tipo de evento
+                }).bindPopup(`<h3>${event.title}</h3><p>${event.description}</p>`);
+
+                if (event.type === 'wildfires') {
+                    markersLayer.addLayer(marker); // Añadir al grupo de clusters
+                }
             });
-            visibleEvents.forEach(addEventToMap);
+
+            map.addLayer(markersLayer); // Añadir el grupo de clusters al mapa
         }
 
-        // Obtener eventos de la API EONET
+        // Obtener eventos desde la API de EONET
         function fetchEvents() {
-            const server = "https://eonet.gsfc.nasa.gov/api/v3/events";
+            const server = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=1000';
             fetch(server)
                 .then(response => response.json())
                 .then(data => {
