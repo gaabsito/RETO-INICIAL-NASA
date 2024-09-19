@@ -25,7 +25,7 @@
 
 <body>
     <header>
-        <h1>SSEGUIMIENTO DE EVENTOS</h1>
+        <h1>SEGUIMIENTO DE EVENTOS</h1>
         <nav>
             <ul>
                 <li><a href="#home">Inicio</a></li>
@@ -56,26 +56,6 @@
         <section id="contacto">
             <h2>Contacto</h2>
             <p>¡Gracias por tu interés en nuestros eventos naturales! Estamos aquí para responder tus preguntas y brindarte la información que necesites.</p>
-            
-            <!-- Formulario de contacto -->
-           
-    
-            <!-- Información adicional de contacto -->
-            <div class="additional-contact">
-                <h3>Otras Formas de Contacto</h3>
-               
-                <p><strong>Dirección:</strong> NASA, Johnson Space Center<br>
-                2101 NASA Parkway, Houston, TX 77058, EE.UU.</p>
-            </div>
-    
-            <!-- Redes Sociales -->
-           
-    
-            <!-- Preguntas frecuentes -->
-            <div class="faq">
-                <h3>Preguntas Frecuentes (FAQ)</h3>
-                <p>Consulta nuestra <a href="#">sección de preguntas frecuentes</a> para obtener respuestas a las consultas más comunes.</p>
-            </div>
         </section>
     </main>
 
@@ -99,64 +79,117 @@
     <script>
         let eventsData = []; // Almacena todos los eventos obtenidos de la API
         let markersLayer = L.layerGroup(); // Capa para almacenar y controlar los marcadores
-        // Definir los iconos para cada tipo de evento
+
+        // Definir los iconos para cada categoría de evento
         const icons = {
-            wildfire: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/753/753945.png', // Icono de fuego
+            drought: L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/2331/2331903.png', // Icono de sequía
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             }),
-            storm: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1163/1163695.png', // Icono de tormenta
+            dustHaze: L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/2063/2063194.png', // Icono de polvo y neblina
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             }),
-            earthquake: L.icon({
+            earthquakes: L.icon({
                 iconUrl: 'https://cdn-icons-png.flaticon.com/512/2920/2920215.png', // Icono de terremoto
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            floods: L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/3077/3077007.png', // Icono de inundación
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            landslides: L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/4332/4332997.png', // Icono de deslizamientos
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            manmade: L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/2106/2106831.png', // Icono de eventos humanos
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            seaLakeIce: L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1267/1267855.png', // Icono de hielo marino
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            severeStorms: L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1163/1163695.png', // Icono de tormenta severa
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            snow: L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/2323/2323094.png', // Icono de nieve
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            tempExtremes: L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1651/1651824.png', // Icono de temperaturas extremas
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            volcanoes: L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1697/1697294.png', // Icono de volcanes
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            waterColor: L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/3420/3420149.png', // Icono de cambio de color del agua
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            }),
+            wildfires: L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/753/753945.png', // Icono de incendios forestales
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             })
         };
+
         // Inicializar el mapa
         const map = L.map('map').setView([20.0, 0.0], 2); // Vista global
-        // Agregar la capa del mapa base
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
-        // Agregar la capa de marcadores al mapa
+
         markersLayer.addTo(map);
-        // Función para agregar eventos al mapa dentro del área visible
+
+        // Función para agregar eventos al mapa
         function addEventToMap(event) {
-            const {
-                latitude,
-                longitude,
-                title,
-                description,
-                type
-            } = event;
-            const icon = icons[type] || icons.wildfire; // Usa un icono predeterminado si el tipo no está definido
-            // Crear y agregar marcador
-            const marker = L.marker([latitude, longitude], {
-                    icon
-                })
+            const { latitude, longitude, title, description, type } = event;
+            const icon = icons[type] || icons.wildfires;
+            const marker = L.marker([latitude, longitude], { icon })
                 .bindPopup(`<h3>${title}</h3><p>${description}</p>`);
             markersLayer.addLayer(marker);
         }
-        // Función para filtrar eventos dentro de los límites visibles del mapa
+
+        // Función para filtrar eventos visibles
         function displayVisibleEvents() {
-            const bounds = map.getBounds(); // Obtener los límites actuales del mapa
-            // Limpiar los marcadores anteriores
+            const bounds = map.getBounds();
             markersLayer.clearLayers();
-            // Filtrar eventos dentro de los límites y agregar al mapa
             const visibleEvents = eventsData.filter(event => {
                 return bounds.contains([event.latitude, event.longitude]);
             });
             visibleEvents.forEach(addEventToMap);
         }
+
         // Obtener eventos de la API EONET
         function fetchEvents() {
             const server = "https://eonet.gsfc.nasa.gov/api/v3/events";
@@ -164,41 +197,24 @@
                 .then(response => response.json())
                 .then(data => {
                     eventsData = data.events.map(event => {
-                        const {
-                            title,
-                            description,
-                            geometry,
-                            categories
-                        } = event;
-                        let type = 'wildfire'; // Valor por defecto
-                        if (categories.length > 0) {
-                            const categoryTitle = categories[0].title.toLowerCase();
-                            if (categoryTitle.includes('storm')) {
-                                type = 'storm';
-                            } else if (categoryTitle.includes('earthquake')) {
-                                type = 'earthquake';
-                            } else if (categoryTitle.includes('wildfire')) {
-                                type = 'wildfire';
-                            }
-                        }
-                        const location = geometry[0];
                         return {
-                            title,
-                            description: description || "No hay descripción disponible.",
-                            latitude: location.coordinates[1],
-                            longitude: location.coordinates[0],
-                            type
+                            title: event.title,
+                            description: event.description || "Sin descripción.",
+                            latitude: event.geometry[0].coordinates[1],
+                            longitude: event.geometry[0].coordinates[0],
+                            type: event.categories[0].id
                         };
                     });
-                    // Mostrar los eventos dentro de los límites visibles inicialmente
                     displayVisibleEvents();
                 })
-                .catch(error => console.error('Error fetching events:', error));
+                .catch(error => console.error('Error al obtener los eventos:', error));
         }
-        // Escuchar los eventos de zoom y movimiento del mapa
+
+        // Detectar cuando el mapa cambia para mostrar los eventos visibles
         map.on('moveend', displayVisibleEvents);
-        // Llamar a la función para obtener eventos
-        fetchEvents();
+
+        // Obtener los eventos cuando la página carga
+        document.addEventListener('DOMContentLoaded', fetchEvents);
     </script>
 </body>
 
