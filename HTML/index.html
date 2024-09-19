@@ -58,8 +58,7 @@
 
         <section id="contacto">
             <h2>Contacto</h2>
-            <p>¡Gracias por tu interés en nuestros eventos naturales! Estamos aquí para responder tus preguntas y
-                brindarte la información que necesites.</p>
+            <p>¡Gracias por tu interés en nuestros eventos naturales! Estamos aquí para responder tus preguntas y brindarte la información que necesites.</p>
         </section>
     </main>
 
@@ -84,7 +83,12 @@
     <!-- Custom JS -->
     <script>
         let eventsData = []; // Almacena todos los eventos obtenidos de la API
-        let markersLayer = L.markerClusterGroup(); // Agrupación de marcadores
+        let layers = {}; // Almacena las capas por tipo de evento
+        let baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+        
         // Definir los iconos para cada categoría de evento
         const icons = {
             drought: L.icon({
@@ -166,25 +170,90 @@
                 popupAnchor: [0, -32]
             })
         };
+
         // Inicializar el mapa
-        const map = L.map('map').setView([20.0, 0.0], 2); // Vista global
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-        // Función para mostrar eventos visibles en el mapa
+        const map = L.map('map', {
+            center: [20.0, 0.0], 
+            zoom: 2, 
+            layers: [baseLayer] // Añadir capa base
+        });
+
+        // Crear un grupo de capas para cada tipo de evento
+        let layerGroups = {
+            "Sequías": L.markerClusterGroup(),
+            "Polvo y Neblina": L.markerClusterGroup(),
+            "Terremotos": L.markerClusterGroup(),
+            "Inundaciones": L.markerClusterGroup(),
+            "Deslizamientos": L.markerClusterGroup(),
+            "Eventos Humanos": L.markerClusterGroup(),
+            "Hielo Marino": L.markerClusterGroup(),
+            "Tormentas Severas": L.markerClusterGroup(),
+            "Nieve": L.markerClusterGroup(),
+            "Temperaturas Extremas": L.markerClusterGroup(),
+            "Volcanes": L.markerClusterGroup(),
+            "Cambio en Color del Agua": L.markerClusterGroup(),
+            "Incendios Forestales": L.markerClusterGroup()
+        };
+
+        // Función para mostrar eventos en las capas correctas
         function displayVisibleEvents() {
-            markersLayer.clearLayers(); // Limpiar los marcadores anteriores
+            // Limpiar las capas anteriores
+            for (let layer in layerGroups) {
+                layerGroups[layer].clearLayers();
+            }
+
+            // Recorrer los datos de eventos y asignarlos a la capa correspondiente
             eventsData.forEach(event => {
                 const marker = L.marker([event.latitude, event.longitude], {
-                    icon: icons[event.type] || icons[
-                        'wildfires'] // Asignar el icono según el tipo de evento
+                    icon: icons[event.type] || icons['wildfires']
                 }).bindPopup(`<h3>${event.title}</h3><p>${event.description}</p>`);
-                // Añadir al grupo de clusters sin condicionar al tipo
-                markersLayer.addLayer(marker);
+                
+                switch (event.type) {
+                    case 'drought':
+                        layerGroups["Sequías"].addLayer(marker);
+                        break;
+                    case 'dustHaze':
+                        layerGroups["Polvo y Neblina"].addLayer(marker);
+                        break;
+                    case 'earthquakes':
+                        layerGroups["Terremotos"].addLayer(marker);
+                        break;
+                    case 'floods':
+                        layerGroups["Inundaciones"].addLayer(marker);
+                        break;
+                    case 'landslides':
+                        layerGroups["Deslizamientos"].addLayer(marker);
+                        break;
+                    case 'manmade':
+                        layerGroups["Eventos Humanos"].addLayer(marker);
+                        break;
+                    case 'seaLakeIce':
+                        layerGroups["Hielo Marino"].addLayer(marker);
+                        break;
+                    case 'severeStorms':
+                        layerGroups["Tormentas Severas"].addLayer(marker);
+                        break;
+                    case 'snow':
+                        layerGroups["Nieve"].addLayer(marker);
+                        break;
+                    case 'tempExtremes':
+                        layerGroups["Temperaturas Extremas"].addLayer(marker);
+                        break;
+                    case 'volcanoes':
+                        layerGroups["Volcanes"].addLayer(marker);
+                        break;
+                    case 'waterColor':
+                        layerGroups["Cambio en Color del Agua"].addLayer(marker);
+                        break;
+                    case 'wildfires':
+                        layerGroups["Incendios Forestales"].addLayer(marker);
+                        break;
+                    default:
+                        layerGroups["Incendios Forestales"].addLayer(marker); // Default a wildfires
+                }
             });
-            map.addLayer(markersLayer); // Añadir el grupo de clusters al mapa
         }
+
         // Obtener eventos desde la API de EONET
         function fetchEvents() {
             const server = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=1000';
@@ -204,8 +273,13 @@
                 })
                 .catch(error => console.error('Error al obtener los eventos:', error));
         }
+
+        // Agregar control de capas al mapa
+        L.control.layers(null, layerGroups, {collapsed: false}).addTo(map);
+
         // Detectar cuando el mapa cambia para mostrar los eventos visibles
         map.on('moveend', displayVisibleEvents);
+
         // Obtener los eventos cuando la página carga
         document.addEventListener('DOMContentLoaded', fetchEvents);
     </script>
