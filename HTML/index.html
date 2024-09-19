@@ -58,7 +58,8 @@
 
         <section id="contacto">
             <h2>Contacto</h2>
-            <p>¡Gracias por tu interés en nuestros eventos naturales! Estamos aquí para responder tus preguntas y brindarte la información que necesites.</p>
+            <p>¡Gracias por tu interés en nuestros eventos naturales! Estamos aquí para responder tus preguntas y
+                brindarte la información que necesites.</p>
         </section>
     </main>
 
@@ -84,35 +85,34 @@
     <script>
         let eventsData = []; // Almacena todos los eventos obtenidos de la API
         let markersLayer = L.markerClusterGroup(); // Agrupación de marcadores
-
         // Definir los iconos para cada categoría de evento
         const icons = {
             drought: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/2331/2331903.png', // Icono de sequía
+                iconUrl: 'https://i.ibb.co/CVKPr1v/drought.png', // Icono de sequía
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             }),
             dustHaze: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/2063/2063194.png', // Icono de polvo y neblina
+                iconUrl: 'https://i.ibb.co/qFfS1CX/haze.png', // Icono de polvo y neblina
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             }),
             earthquakes: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/2920/2920215.png', // Icono de terremoto
+                iconUrl: 'https://i.ibb.co/q5LtvGg/earthquake.png', // Icono de terremoto
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             }),
             floods: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/3077/3077007.png', // Icono de inundación
+                iconUrl: 'https://i.ibb.co/crHDdDD/flooding.png', // Icono de inundación
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             }),
             landslides: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/4332/4332997.png', // Icono de deslizamientos
+                iconUrl: 'https://i.ibb.co/4pHjR6b/landslide.png', // Icono de deslizamientos
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
@@ -124,73 +124,67 @@
                 popupAnchor: [0, -32]
             }),
             seaLakeIce: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1267/1267855.png', // Icono de hielo marino
+                iconUrl: 'https://i.ibb.co/dP49ZRf/iceberg.png', // Icono de hielo marino
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             }),
             severeStorms: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1163/1163695.png', // Icono de tormenta severa
+                iconUrl: 'https://i.ibb.co/k3jVhyW/storm.png', // Icono de tormenta severa
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             }),
             snow: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/2323/2323094.png', // Icono de nieve
+                iconUrl: 'https://i.ibb.co/9q0WNwP/snow.png', // Icono de nieve
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             }),
             tempExtremes: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1651/1651824.png', // Icono de temperaturas extremas
+                iconUrl: 'https://i.ibb.co/dbdMn0w/temperatures.png', // Icono de temperaturas extremas
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             }),
             volcanoes: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1697/1697294.png', // Icono de volcanes
+                iconUrl: 'https://i.ibb.co/RQbSVSk/volcanoes.png', // Icono de volcanes
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             }),
             waterColor: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/3420/3420149.png', // Icono de cambio de color del agua
+                iconUrl: 'https://i.ibb.co/2qQ8mvk/water.png', // Icono de cambio de color del agua
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             }),
             wildfires: L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/753/753945.png', // Icono de incendios forestales
+                iconUrl: 'https://i.ibb.co/WF4xGWk/wildfire.png', // Icono de incendios forestales
                 iconSize: [32, 32],
                 iconAnchor: [16, 32],
                 popupAnchor: [0, -32]
             })
         };
-
         // Inicializar el mapa
         const map = L.map('map').setView([20.0, 0.0], 2); // Vista global
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
-
         // Función para mostrar eventos visibles en el mapa
         function displayVisibleEvents() {
             markersLayer.clearLayers(); // Limpiar los marcadores anteriores
-
             eventsData.forEach(event => {
                 const marker = L.marker([event.latitude, event.longitude], {
-                    icon: icons[event.type] || icons['wildfires'] // Asignar el icono según el tipo de evento
+                    icon: icons[event.type] || icons[
+                        'wildfires'] // Asignar el icono según el tipo de evento
                 }).bindPopup(`<h3>${event.title}</h3><p>${event.description}</p>`);
-
-                if (event.type === 'wildfires') {
-                    markersLayer.addLayer(marker); // Añadir al grupo de clusters
-                }
+                // Añadir al grupo de clusters sin condicionar al tipo
+                markersLayer.addLayer(marker);
             });
-
             map.addLayer(markersLayer); // Añadir el grupo de clusters al mapa
         }
-
         // Obtener eventos desde la API de EONET
         function fetchEvents() {
             const server = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=1000';
@@ -210,10 +204,8 @@
                 })
                 .catch(error => console.error('Error al obtener los eventos:', error));
         }
-
         // Detectar cuando el mapa cambia para mostrar los eventos visibles
         map.on('moveend', displayVisibleEvents);
-
         // Obtener los eventos cuando la página carga
         document.addEventListener('DOMContentLoaded', fetchEvents);
     </script>
