@@ -55,11 +55,6 @@
             <p>Esta plataforma está diseñada para ayudar a los usuarios a monitorear y entender eventos naturales con
                 datos proporcionados por la NASA.</p>
         </section>
-
-        <section id="contacto">
-            <h2>Contacto</h2>
-            <p>¡Gracias por tu interés en nuestros eventos naturales! Estamos aquí para responder tus preguntas y brindarte la información que necesites.</p>
-        </section>
     </main>
 
     <footer>
@@ -256,7 +251,7 @@
 
         // Obtener eventos desde la API de EONET
         function fetchEvents() {
-            const server = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=1000';
+            const server = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=open';
             fetch(server)
                 .then(response => response.json())
                 .then(data => {
