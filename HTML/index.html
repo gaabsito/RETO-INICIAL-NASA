@@ -164,18 +164,9 @@
 
         // Crear un grupo de capas para cada tipo de evento
         let layerGroups = {
-            "Sequías": L.markerClusterGroup(),
-            "Polvo y Neblina": L.markerClusterGroup(),
-            "Terremotos": L.markerClusterGroup(),
-            "Inundaciones": L.markerClusterGroup(),
-            "Deslizamientos": L.markerClusterGroup(),
-            "Eventos Humanos": L.markerClusterGroup(),
             "Hielo Marino": L.markerClusterGroup(),
             "Tormentas Severas": L.markerClusterGroup(),
-            "Nieve": L.markerClusterGroup(),
-            "Temperaturas Extremas": L.markerClusterGroup(),
             "Volcanes": L.markerClusterGroup(),
-            "Cambio en Color del Agua": L.markerClusterGroup(),
             "Incendios Forestales": L.markerClusterGroup()
         };
 
@@ -193,41 +184,14 @@
                 }).bindPopup(`<h3>${event.title}</h3><p>${event.description}</p>`);
                 
                 switch (event.type) {
-                    case 'drought':
-                        layerGroups["Sequías"].addLayer(marker);
-                        break;
-                    case 'dustHaze':
-                        layerGroups["Polvo y Neblina"].addLayer(marker);
-                        break;
-                    case 'earthquakes':
-                        layerGroups["Terremotos"].addLayer(marker);
-                        break;
-                    case 'floods':
-                        layerGroups["Inundaciones"].addLayer(marker);
-                        break;
-                    case 'landslides':
-                        layerGroups["Deslizamientos"].addLayer(marker);
-                        break;
-                    case 'manmade':
-                        layerGroups["Eventos Humanos"].addLayer(marker);
-                        break;
                     case 'seaLakeIce':
                         layerGroups["Hielo Marino"].addLayer(marker);
                         break;
                     case 'severeStorms':
                         layerGroups["Tormentas Severas"].addLayer(marker);
                         break;
-                    case 'snow':
-                        layerGroups["Nieve"].addLayer(marker);
-                        break;
-                    case 'tempExtremes':
-                        layerGroups["Temperaturas Extremas"].addLayer(marker);
-                        break;
                     case 'volcanoes':
                         layerGroups["Volcanes"].addLayer(marker);
-                        break;
-                    case 'waterColor':
-                        layerGroups["Cambio en Color del Agua"].addLayer(marker);
                         break;
                     case 'wildfires':
                         layerGroups["Incendios Forestales"].addLayer(marker);
@@ -237,6 +201,8 @@
                 }
             });
         }
+
+        
 
         // Obtener eventos desde la API de EONET
         function fetchEvents() {
