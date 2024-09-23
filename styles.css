@@ -1,4 +1,17 @@
 /* General Styles */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+#map {
+    height: 600px;
+    width: 100%;
+    margin-top: 20px;
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -42,6 +55,10 @@ main {
 
 section {
     margin-bottom: 20px;
+}
+
+.leaflet-popup-content {
+    text-align: center;
 }
 
 .event-card {
