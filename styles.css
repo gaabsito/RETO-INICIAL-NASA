@@ -57,6 +57,11 @@ section {
     margin-bottom: 20px;
 }
 
+.leaflet-control-layers-overlays {
+    display: flex;
+    flex-direction: column;
+}
+
 .leaflet-popup-content {
     text-align: center;
 }
@@ -205,7 +210,3 @@ color: white;
 
 }
 
-.leaflet-control-layers-overlays {
-    display: flex;
-    flex-direction: column;
-}
