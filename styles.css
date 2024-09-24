@@ -66,6 +66,7 @@ main {
     display: flex;
     flex-direction: row-reverse;
     justify-content: space-between;
+    gap: 15px;
 }
 
 .event-card {
@@ -110,7 +111,6 @@ footer {
     bottom: 0;
     z-index: 999;
 }
-
 
 #contacto {
     max-width: 800px;
@@ -210,4 +210,3 @@ ul li a:hover {
 color: white;
 
 }
-
