@@ -26,6 +26,7 @@ header {
     align-items: center;
     background-color: #004d99;
     color: #fff;
+    gap: 5%;
     padding: 20px;
     text-align: center;
 }
