@@ -62,22 +62,22 @@
     <script>
         let eventsData = []; // Almacena todos los eventos obtenidos de la API
         let layers = {}; // Almacena las capas por tipo de evento
-
+    
         // Definir las capas base
         let baseLayerOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         });
-
+    
         let baseLayerTopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
             maxZoom: 17,
             attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="https://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
         });
-
+    
         let baseLayerEsri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         });
-
+    
         // Definir los iconos para cada categoría de evento
         const icons = {
             seaLakeIce: L.icon({
@@ -105,7 +105,7 @@
                 popupAnchor: [0, -32]
             })
         };
-
+    
         // Inicializar el mapa
         const map = L.map('map', {
             center: [20.0, 0.0],
@@ -115,7 +115,7 @@
             maxBounds: [[-90, -180], [90, 180]], // Límite del mapa: [suroeste, noreste]
             maxBoundsViscosity: 1.0 // Hace que el mapa rebote cuando se alcanza el límite
         });
-
+    
         // Crear un grupo de capas para cada tipo de evento
         let layerGroups = {
             "Hielo Marino": L.markerClusterGroup(),
@@ -123,20 +123,20 @@
             "Volcanes": L.markerClusterGroup(),
             "Incendios Forestales": L.markerClusterGroup()
         };
-
+    
         // Función para mostrar eventos en las capas correctas
         function displayVisibleEvents(events = eventsData) {
             // Limpiar las capas anteriores
             for (let layer in layerGroups) {
                 layerGroups[layer].clearLayers();
             }
-
+    
             // Recorrer los datos de eventos y asignarlos a la capa correspondiente
             events.forEach(event => {
                 const marker = L.marker([event.latitude, event.longitude], {
                     icon: icons[event.type] || icons['wildfires']
                 }).bindPopup(`<h3>${event.title}</h3><p>${event.description}</p>`);
-
+    
                 switch (event.type) {
                     case 'seaLakeIce':
                         layerGroups["Hielo Marino"].addLayer(marker);
@@ -155,12 +155,12 @@
                 }
             });
         }
-
+    
         // Obtener eventos desde la API de EONET
         function fetchEvents() {
             // Mostrar la ventana de carga
             document.getElementById('loading').style.display = 'block';
-
+    
             const server = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=open';
             fetch(server)
                 .then(response => response.json())
@@ -183,7 +183,7 @@
                     document.getElementById('loading').style.display = 'none';
                 });
         }
-
+    
         // Crear el control de capas (categorías de eventos y filtro de fechas)
         const layerControl = L.control.layers({
             "OpenStreetMap": baseLayerOSM,
@@ -194,13 +194,27 @@
             "Tormentas Severas": layerGroups["Tormentas Severas"],
             "Volcanes": layerGroups["Volcanes"],
             "Incendios Forestales": layerGroups["Incendios Forestales"]
-        }, {collapsed: false}).addTo(map);
-
+        }, {collapsed: true}).addTo(map);
+    
+        // Agregar eventos de clic para mostrar/ocultar el control de capas
+        const layerControlDiv = document.querySelector('.leaflet-control-layers');
+    
+        // Hacer el control de capas clickable
+        layerControlDiv.style.cursor = 'pointer';
+    
+        layerControlDiv.addEventListener('click', function () {
+            if (layerControlDiv.style.display === 'none' || !layerControlDiv.style.display) {
+                layerControlDiv.style.display = 'block';
+            } else {
+                layerControlDiv.style.display = 'none';
+            }
+        });
+    
         // Agregar un separador antes del filtro de fechas
         const separator = L.DomUtil.create('div', 'leaflet-control-layers-separator');
         const controlContainer = document.querySelector('.leaflet-control-layers-list');
         controlContainer.appendChild(separator);
-
+    
         // Agregar el filtro de fechas
         const filterDiv = L.DomUtil.create('div', 'leaflet-control-layers-date');
         filterDiv.innerHTML = `
@@ -211,28 +225,28 @@
             <button id="filterButton">Filtrar</button>
         `;
         controlContainer.appendChild(filterDiv);
-
+    
         const filterButton = document.getElementById('filterButton');
         const startDateInput = document.getElementById('startDate');
         const endDateInput = document.getElementById('endDate');
-
+    
         // Filtrar eventos por fecha
         function filterEventsByDate() {
             const startDate = new Date(startDateInput.value);
             const endDate = new Date(endDateInput.value);
-
+    
             const filteredEventsData = eventsData.filter(event => {
                 const eventDate = new Date(event.date);
                 return (!isNaN(startDate) ? eventDate >= startDate : true) &&
                        (!isNaN(endDate) ? eventDate <= endDate : true);
             });
-
+    
             displayVisibleEvents(filteredEventsData);
         }
-
+    
         // Aplicar el filtro cuando el usuario haga clic en el botón
         filterButton.addEventListener('click', filterEventsByDate);
-
+    
         // Obtener los eventos cuando la página carga
         document.addEventListener('DOMContentLoaded', fetchEvents);
     </script>
