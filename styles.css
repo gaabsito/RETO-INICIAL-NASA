@@ -67,6 +67,10 @@ main {
     text-align: center;
 }
 
+.leaflet-control-layers-expanded {
+    padding: 7.5px !important;
+}
+
 .leaflet-control-layers-selector {
     position: relative !important;
     top: 0px !important;
