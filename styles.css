@@ -148,6 +148,10 @@ footer {
     z-index: 999;
 }
 
+footer p {
+    color: white;
+}
+
 #contacto {
     max-width: 800px;
     margin: 40px auto;
