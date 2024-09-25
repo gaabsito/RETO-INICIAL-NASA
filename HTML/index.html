@@ -39,7 +39,7 @@
             <h2>Acerca de</h2>
             <p>Esta plataforma está diseñada para ayudar a los usuarios a monitorear y entender eventos naturales con
                 datos proporcionados por la NASA.</p>
-            </div>
+        </div>
     </main>
 
     <footer>
@@ -64,7 +64,7 @@
     <script>
         let eventsData = []; // Almacena todos los eventos obtenidos de la API
         let layers = {}; // Almacena las capas por tipo de evento
-        
+
         // Definir las capas base
         let baseLayerOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -124,18 +124,18 @@
         };
 
         // Función para mostrar eventos en las capas correctas
-        function displayVisibleEvents() {
+        function displayVisibleEvents(events = eventsData) {
             // Limpiar las capas anteriores
             for (let layer in layerGroups) {
                 layerGroups[layer].clearLayers();
             }
 
             // Recorrer los datos de eventos y asignarlos a la capa correspondiente
-            eventsData.forEach(event => {
+            events.forEach(event => {
                 const marker = L.marker([event.latitude, event.longitude], {
                     icon: icons[event.type] || icons['wildfires']
                 }).bindPopup(`<h3>${event.title}</h3><p>${event.description}</p>`);
-                
+
                 switch (event.type) {
                     case 'seaLakeIce':
                         layerGroups["Hielo Marino"].addLayer(marker);
@@ -167,7 +167,8 @@
                             description: event.description || "Sin descripción.",
                             latitude: event.geometry[0].coordinates[1],
                             longitude: event.geometry[0].coordinates[0],
-                            type: event.categories[0].id
+                            type: event.categories[0].id,
+                            date: event.geometry[0].date // Incluir la fecha del evento
                         };
                     });
                     displayVisibleEvents();
@@ -175,16 +176,59 @@
                 .catch(error => console.error('Error al obtener los eventos:', error));
         }
 
-        // Agregar control de capas al mapa (capas base y de eventos)
-        L.control.layers({
+        // Crear el control de capas (categorías de eventos y filtro de fechas)
+        const layerControl = L.control.layers({
             "OpenStreetMap": baseLayerOSM,
             "OpenTopoMap": baseLayerTopo,
-            "ESRI World Imagery": baseLayerEsri
-        }, layerGroups, {collapsed: false}).addTo(map);
+            "Esri World Imagery": baseLayerEsri
+        }, {
+            "Hielo Marino": layerGroups["Hielo Marino"],
+            "Tormentas Severas": layerGroups["Tormentas Severas"],
+            "Volcanes": layerGroups["Volcanes"],
+            "Incendios Forestales": layerGroups["Incendios Forestales"]
+        }, {collapsed: false}).addTo(map);
+
+        // Agregar un separador antes del filtro de fechas
+        const separator = L.DomUtil.create('div', 'leaflet-control-layers-separator');
+        const controlContainer = document.querySelector('.leaflet-control-layers-list');
+        controlContainer.appendChild(separator);
+
+        // Agregar el filtro de fechas
+        const filterDiv = L.DomUtil.create('div', 'leaflet-control-layers-date');
+        filterDiv.innerHTML = `
+            <label for="startDate">Inicio:</label>
+            <input type="date" id="startDate">
+            <label for="endDate">Fin:</label>
+            <input type="date" id="endDate">
+            <button id="filterButton">Filtrar</button>
+        `;
+        controlContainer.appendChild(filterDiv);
+
+        const filterButton = document.getElementById('filterButton');
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+
+        // Filtrar eventos por fecha
+        function filterEventsByDate() {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            const filteredEventsData = eventsData.filter(event => {
+                const eventDate = new Date(event.date);
+                return (!isNaN(startDate) ? eventDate >= startDate : true) &&
+                       (!isNaN(endDate) ? eventDate <= endDate : true);
+            });
+
+            displayVisibleEvents(filteredEventsData);
+        }
+
+        // Aplicar el filtro cuando el usuario haga clic en el botón
+        filterButton.addEventListener('click', filterEventsByDate);
 
         // Obtener los eventos cuando la página carga
         document.addEventListener('DOMContentLoaded', fetchEvents);
     </script>
+
 </body>
 
 </html>

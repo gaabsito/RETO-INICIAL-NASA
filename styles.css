@@ -80,6 +80,20 @@ main {
     gap: 15px;
 }
 
+.leaflet-control-layers-date {
+    display: flex;
+    flex-direction: column;
+}
+
+.leaflet-control-layers-date input {
+    padding: 0%;
+    margin-bottom: 5%;
+}
+
+.leaflet-control-layers-date button {
+    padding: 2%;
+}
+
 .event-card {
     background-color: #fff;
     border: 1px solid #ddd;
