@@ -102,10 +102,12 @@
 
         // Inicializar el mapa
         const map = L.map('map', {
-            center: [20.0, 0.0], 
-            zoom: 2, 
+            center: [20.0, 0.0],
+            zoom: 2,
             minZoom: 2, // Establece el nivel de zoom mínimo
-            layers: [baseLayerOSM] // Capa base inicial
+            layers: [baseLayerOSM], // Capa base inicial
+            maxBounds: [[-90, -180], [90, 180]], // Límite del mapa: [suroeste, noreste]
+            maxBoundsViscosity: 1.0 // Hace que el mapa rebote cuando se alcanza el límite
         });
 
         // Crear un grupo de capas para cada tipo de evento
