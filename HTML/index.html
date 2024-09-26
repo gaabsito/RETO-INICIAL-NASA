@@ -13,6 +13,24 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Estilo para ocultar el control de capas al inicio */
+        .leaflet-control-layers-list {
+            display: none;
+        }
+
+        /* Mostrar el control de capas cuando el cursor pasa sobre el toggle */
+        .leaflet-control-layers:hover .leaflet-control-layers-list {
+            display: block;
+        }
+
+        /* Opcional: Cambiar el estilo del toggle al pasar el cursor */
+        .leaflet-control-layers-toggle:hover {
+            background-color: #ddd;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+    </style>
 </head>
 
 <body>
@@ -193,7 +211,7 @@
             "Tormentas Severas": layerGroups["Tormentas Severas"],
             "Volcanes": layerGroups["Volcanes"],
             "Incendios Forestales": layerGroups["Incendios Forestales"]
-        }, {collapsed: false}).addTo(map);
+        }, {collapsed: true}).addTo(map);
     
         // Agregar un separador antes del filtro de fechas
         const separator = L.DomUtil.create('div', 'leaflet-control-layers-separator');
