@@ -63,6 +63,7 @@
     <script>
         let eventsData = []; // Almacena todos los eventos obtenidos de la API
         let layers = {}; // Almacena las capas por tipo de evento
+
         // Definir las capas base
         let baseLayerOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -76,6 +77,7 @@
             'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
             });
+
         // Definir los iconos para cada categoría de evento
         const icons = {
             seaLakeIce: L.icon({
@@ -103,6 +105,7 @@
                 popupAnchor: [0, -32]
             })
         };
+
         // Inicializar el mapa
         const map = L.map('map', {
             center: [20.0, 0.0],
@@ -115,6 +118,7 @@
             ], // Límite del mapa: [suroeste, noreste]
             maxBoundsViscosity: 1.0 // Hace que el mapa rebote cuando se alcanza el límite
         });
+
         // Crear un grupo de capas para cada tipo de evento
         let layerGroups = {
             "Hielo Marino": L.markerClusterGroup(),
@@ -122,8 +126,10 @@
             "Volcanes": L.markerClusterGroup(),
             "Incendios Forestales": L.markerClusterGroup()
         };
+
         // Añadir tu clave de API de OpenWeatherMap
         const apiKey = '06d42d9fef0d1efe50865455a600bfd8';
+
         // Función para obtener el clima de OpenWeatherMap
         function fetchWeather(lat, lon) {
             const weatherUrl =
@@ -152,6 +158,7 @@
                     return null; // Retorna null si hay un error
                 });
         }
+
         // Función para mostrar eventos en las capas correctas
         function displayVisibleEvents(events = eventsData) {
             for (let layer in layerGroups) {
@@ -160,6 +167,7 @@
             events.forEach(event => {
                 const lat = event.latitude;
                 const lon = event.longitude;
+
                 // Obtener la información meteorológica
                 fetchWeather(lat, lon).then(weather => {
                     const marker = L.marker([lat, lon], {
@@ -190,6 +198,7 @@
                 });
             });
         }
+        
         // Obtener eventos desde la API de EONET
         function fetchEvents() {
             document.getElementById('loading').style.display = 'block';
