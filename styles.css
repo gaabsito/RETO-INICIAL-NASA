@@ -62,6 +62,23 @@ main {
     margin-bottom: 40px;
 }
 
+/* Estilo para ocultar el control de capas al inicio */
+.leaflet-control-layers-list {
+    display: none;
+}
+
+/* Mostrar el control de capas cuando el cursor pasa sobre el toggle */
+.leaflet-control-layers:hover .leaflet-control-layers-list {
+    display: block;
+}
+
+/* Opcional: Cambiar el estilo del toggle al pasar el cursor */
+.leaflet-control-layers-toggle:hover {
+    background-color: #ddd;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
 .leaflet-popup-content {
     text-align: center;
 }
