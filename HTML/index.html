@@ -12,6 +12,9 @@
     <!-- Leaflet.markercluster CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <!-- Leaflet Geocoder CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    
     <link rel="stylesheet" href="../styles.css">
 </head>
 
@@ -53,6 +56,9 @@
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Leaflet Geocoder JS -->
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
     <!-- Leaflet.markercluster JS -->
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
@@ -114,7 +120,8 @@
                 [90, 180]
             ], // Límite del mapa: [suroeste, noreste]
             maxBoundsViscosity: 1.0 // Hace que el mapa rebote cuando se alcanza el límite
-        });
+        })
+        L.Control.geocoder({ position: 'topleft' }).addTo(map);
 
         // Crear un grupo de capas para cada tipo de evento
         let layerGroups = {
