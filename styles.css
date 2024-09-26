@@ -7,7 +7,7 @@ html, body {
 
 @font-face {
     font-family: 'Nasa';
-    src: url(../RETO-INICIAL-NASA/font/nasalization-2/NASALIZA.TTF);
+    src: url(./NASALIZA.TTF);
     font-weight: normal;
     font-style: normal;
 }
@@ -18,7 +18,7 @@ html, body {
 }
 
 body {
-    font-family: 'Nasa';
+    font-family: 'Nasa', sans-serif;
     margin: 0;
     padding: 0;
     color: #333;
