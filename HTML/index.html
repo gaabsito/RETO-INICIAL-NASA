@@ -55,7 +55,7 @@
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
+
     <!-- Leaflet.markercluster JS -->
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
@@ -63,7 +63,6 @@
     <script>
         let eventsData = []; // Almacena todos los eventos obtenidos de la API
         let layers = {}; // Almacena las capas por tipo de evento
-
         // Definir las capas base
         let baseLayerOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -127,13 +126,12 @@
             "Incendios Forestales": L.markerClusterGroup()
         };
 
-        // Añadir tu clave de API de OpenWeatherMap
-        const apiKey = '06d42d9fef0d1efe50865455a600bfd8';
+        // Añadir tu clave de API de WeatherAPI
+        const apiKey = '1b76fece9f554c238b7171056242609'; // Reemplaza con tu clave
 
-        // Función para obtener el clima de OpenWeatherMap
+        // Función para obtener el clima de WeatherAPI
         function fetchWeather(lat, lon) {
-            const weatherUrl =
-                `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
+            const weatherUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&lang=es`;
             console.log(weatherUrl); // Verifica la URL de la solicitud
             return fetch(weatherUrl)
                 .then(response => {
@@ -143,11 +141,11 @@
                     return response.json();
                 })
                 .then(data => {
-                    if (data.main && data.weather && data.weather.length > 0) {
+                    if (data.current) {
                         return {
-                            temp: data.main.temp,
-                            description: data.weather[0].description,
-                            icon: `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`
+                            temp: data.current.temp_c,
+                            description: data.current.condition.text,
+                            icon: data.current.condition.icon
                         };
                     } else {
                         throw new Error('Datos del clima no disponibles');
@@ -168,37 +166,44 @@
                 const lat = event.latitude;
                 const lon = event.longitude;
 
-                // Obtener la información meteorológica
-                fetchWeather(lat, lon).then(weather => {
-                    const marker = L.marker([lat, lon], {
-                        icon: icons[event.type] || icons['wildfires']
-                    }).bindPopup(`
-                        <h3>${event.title}</h3>
-                        <p>${event.description}</p>
-                        <p><strong>Clima actual:</strong></p>
-                        <p>${weather ? `${weather.temp}°C, ${weather.description}` : 'No disponible'}</p>
-                        ${weather ? `<img src="${weather.icon}" alt="${weather.description}">` : ''}
-                    `);
-                    switch (event.type) {
-                        case 'seaLakeIce':
-                            layerGroups["Hielo Marino"].addLayer(marker);
-                            break;
-                        case 'severeStorms':
-                            layerGroups["Tormentas Severas"].addLayer(marker);
-                            break;
-                        case 'volcanoes':
-                            layerGroups["Volcanes"].addLayer(marker);
-                            break;
-                        case 'wildfires':
-                            layerGroups["Incendios Forestales"].addLayer(marker);
-                            break;
-                        default:
-                            layerGroups["Incendios Forestales"].addLayer(marker);
-                    }
+                // Crear el marcador sin obtener el clima aún
+                const marker = L.marker([lat, lon], {
+                    icon: icons[event.type] || icons['wildfires']
+                }).bindPopup(`<h3>${event.title}</h3><p>${event.description}</p>`);
+
+                // Añadir un evento click al marcador para obtener el clima
+                marker.on('click', () => {
+                    fetchWeather(lat, lon).then(weather => {
+                        marker.setPopupContent(`
+                            <h3>${event.title}</h3>
+                            <p>${event.description}</p>
+                            <p><strong>Clima actual:</strong></p>
+                            <p>${weather ? `${weather.temp}°C, ${weather.description}` : 'No disponible'}</p>
+                            ${weather ? `<img src="${weather.icon}" alt="${weather.description}">` : ''}
+                        `).openPopup();
+                    });
                 });
+
+                // Añadir el marcador al grupo correspondiente
+                switch (event.type) {
+                    case 'seaLakeIce':
+                        layerGroups["Hielo Marino"].addLayer(marker);
+                        break;
+                    case 'severeStorms':
+                        layerGroups["Tormentas Severas"].addLayer(marker);
+                        break;
+                    case 'volcanoes':
+                        layerGroups["Volcanes"].addLayer(marker);
+                        break;
+                    case 'wildfires':
+                        layerGroups["Incendios Forestales"].addLayer(marker);
+                        break;
+                    default:
+                        layerGroups["Incendios Forestales"].addLayer(marker);
+                }
             });
         }
-        
+
         // Obtener eventos desde la API de EONET
         function fetchEvents() {
             document.getElementById('loading').style.display = 'block';
