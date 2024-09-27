@@ -121,7 +121,33 @@
             ], // Límite del mapa: [suroeste, noreste]
             maxBoundsViscosity: 1.0 // Hace que el mapa rebote cuando se alcanza el límite
         })
-        L.Control.geocoder({ position: 'topleft' }).addTo(map);
+
+        // Agregar el geocodificador y configurar la eliminación del marcador al cerrar el popup
+        let searchMarker; // Variable para almacenar el marcador de búsqueda
+
+        L.Control.geocoder({
+            position: 'topleft',
+            defaultMarkGeocode: false // Evitar que el geocodificador agregue automáticamente un marcador
+        }).on('markgeocode', function(e) {
+            // Si ya existe un marcador de búsqueda, elimínalo
+            if (searchMarker) {
+                map.removeLayer(searchMarker);
+            }
+
+            // Crear el marcador en la ubicación encontrada
+            searchMarker = L.marker(e.geocode.center)
+                .addTo(map)
+                .bindPopup(e.geocode.name)
+                .openPopup();
+
+            // Mover el mapa a la ubicación encontrada
+            map.fitBounds(e.geocode.bbox);
+
+            // Eliminar el marcador cuando se cierre el popup
+            searchMarker.on('popupclose', function() {
+                map.removeLayer(searchMarker);
+            });
+        }).addTo(map);
 
         // Crear un grupo de capas para cada tipo de evento
         let layerGroups = {
