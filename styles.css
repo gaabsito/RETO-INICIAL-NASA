@@ -109,6 +109,14 @@ main {
     color: #333 !important;
 }
 
+.leaflet-control-geocoder-alternatives {
+    width: 280px;
+}
+
+.leaflet-control-geocoder-alternatives li {
+    max-width: 100%;
+    margin: 0px;
+}
 
 .leaflet-popup-content {
     text-align: center;
