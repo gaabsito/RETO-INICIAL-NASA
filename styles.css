@@ -86,6 +86,24 @@ main {
     transition: background-color 0.3s ease;
 }
 
+.leaflet-control-geocoder-icon:hover {
+    background-color: #f4f4f4 !important;
+}
+
+.leaflet-control-geocoder-expanded {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.leaflet-control-geocoder-form {
+    
+}
+
+.leaflet-control-geocoder-form input {
+    padding: 0%;
+}
+
 .leaflet-popup-content {
     text-align: center;
 }
