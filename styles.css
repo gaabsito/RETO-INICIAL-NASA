@@ -102,6 +102,13 @@ main {
     color: #333 !important;
 }
 
+.leaflet-control-geocoder-alternatives span {
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif !important;
+    font-weight: bold;
+    font-size: 1.08333em !important;
+    color: #333 !important;
+}
+
 
 .leaflet-popup-content {
     text-align: center;
