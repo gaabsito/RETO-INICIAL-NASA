@@ -90,7 +90,9 @@ main {
     background-color: #f4f4f4 !important;
 }
 
-
+.leaflet-control-geocoder-icon {
+    padding: 0px;
+}
 
 .leaflet-control-geocoder-form input {
     padding: 0%;
