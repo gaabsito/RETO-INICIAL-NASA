@@ -90,15 +90,7 @@ main {
     background-color: #f4f4f4 !important;
 }
 
-.leaflet-control-geocoder-expanded {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
 
-.leaflet-control-geocoder-form {
-    
-}
 
 .leaflet-control-geocoder-form input {
     padding: 0%;
