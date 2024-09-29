@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <!-- Leaflet Geocoder CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-    
+
     <link rel="stylesheet" href="../styles.css">
 </head>
 
@@ -128,7 +128,7 @@
         L.Control.geocoder({
             position: 'topleft',
             defaultMarkGeocode: false // Evitar que el geocodificador agregue automáticamente un marcador
-        }).on('markgeocode', function(e) {
+        }).on('markgeocode', function (e) {
             // Si ya existe un marcador de búsqueda, elimínalo
             if (searchMarker) {
                 map.removeLayer(searchMarker);
@@ -136,15 +136,27 @@
 
             // Crear el marcador en la ubicación encontrada
             searchMarker = L.marker(e.geocode.center)
-                .addTo(map)
-                .bindPopup(e.geocode.name)
-                .openPopup();
+                .addTo(map);
+
+            // Obtener las coordenadas del lugar encontrado
+            const lat = e.geocode.center.lat;
+            const lon = e.geocode.center.lng;
+
+            // Obtener el clima para las coordenadas encontradas
+            fetchWeather(lat, lon).then(weather => {
+                searchMarker.bindPopup(`
+            <h3>${e.geocode.name}</h3>
+            <p><strong>Clima actual:</strong></p>
+            <p>${weather ? `${weather.temp}°C, ${weather.description}` : 'No disponible'}</p>
+            ${weather ? `<img src="${weather.icon}" alt="${weather.description}">` : ''}
+        `).openPopup();
+            });
 
             // Mover el mapa a la ubicación encontrada
             map.fitBounds(e.geocode.bbox);
 
             // Eliminar el marcador cuando se cierre el popup
-            searchMarker.on('popupclose', function() {
+            searchMarker.on('popupclose', function () {
                 map.removeLayer(searchMarker);
             });
         }).addTo(map);
