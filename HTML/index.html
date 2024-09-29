@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <!-- Leaflet Geocoder CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <!-- CesiumJS CSS -->
+    <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.92/Build/Cesium/Widgets/widgets.css" />
 
     <link rel="stylesheet" href="../styles.css">
 </head>
@@ -33,8 +35,12 @@
             <h2>Bienvenido a la Plataforma de Monitoreo de Eventos</h2>
             <p>Analiza los eventos naturales en tiempo real y mantente informado.</p>
         </div>
+        <button id="toggleView">Cambiar a Vista 3D</button>
         <div class="events">
+            <!-- Contenedor del mapa 2D -->
             <div id="map"></div>
+            <!-- Contenedor del mapa 3D -->
+            <div id="cesiumContainer"></div>
         </div>
         <div class="about">
             <h2>Acerca de EONET</h2>
@@ -62,6 +68,9 @@
 
     <!-- Leaflet.markercluster JS -->
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+    <!-- CesiumJS JS -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.92/Build/Cesium/Cesium.js"></script>
 
     <!-- Custom JS -->
     <script>
@@ -109,7 +118,7 @@
             })
         };
 
-        // Inicializar el mapa
+        // Inicializar el mapa 2D
         const map = L.map('map', {
             center: [20.0, 0.0],
             zoom: 2,
@@ -121,6 +130,38 @@
             ], // Límite del mapa: [suroeste, noreste]
             maxBoundsViscosity: 1.0 // Hace que el mapa rebote cuando se alcanza el límite
         })
+
+        // Inicializar CesiumJS en el contenedor 'cesiumContainer'
+        const viewer = new Cesium.Viewer('cesiumContainer', {
+            imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+                url: 'https://a.tile.openstreetmap.org/'
+            }),
+            baseLayerPicker: false,  // Ocultar selector de capas por defecto
+            geocoder: false,         // Ocultar el geocoder por defecto de Cesium
+            homeButton: false,
+            sceneModePicker: false,
+            timeline: false,
+            animation: false
+        });
+
+        // Función para alternar entre vista 2D y 3D
+        const toggleButton = document.getElementById('toggleView');
+        let is3DView = false;
+
+        toggleButton.addEventListener('click', function () {
+            is3DView = !is3DView;
+            if (is3DView) {
+                document.getElementById('map').style.display = 'none';
+                document.getElementById('cesiumContainer').style.display = 'block';
+                viewer.resize();
+                displayCesiumEvents(eventsData);  // Mostrar eventos en el globo 3D
+                toggleButton.textContent = 'Cambiar a Vista 2D';
+            } else {
+                document.getElementById('cesiumContainer').style.display = 'none';
+                document.getElementById('map').style.display = 'block';
+                toggleButton.textContent = 'Cambiar a Vista 3D';
+            }
+        });
 
         // Agregar el geocodificador y configurar la eliminación del marcador al cerrar el popup
         let searchMarker; // Variable para almacenar el marcador de búsqueda
@@ -309,6 +350,25 @@
             });
             displayVisibleEvents(filteredEventsData);
         }
+
+        // Función para agregar marcadores a Cesium
+        function addEventToCesium(event) {
+            viewer.entities.add({
+                position: Cesium.Cartesian3.fromDegrees(event.longitude, event.latitude),
+                point: {
+                    pixelSize: 10,
+                    color: Cesium.Color.RED
+                },
+                description: `<h3>${event.title}</h3><p>${event.description}</p>`,
+            });
+        }
+
+        // Función para mostrar eventos en Cesium
+        function displayCesiumEvents(events) {
+            viewer.entities.removeAll();  // Limpiar entidades anteriores
+            events.forEach(addEventToCesium);  // Agregar cada evento
+        }
+
         filterButton.addEventListener('click', filterEventsByDate);
         document.addEventListener('DOMContentLoaded', fetchEvents);
     </script>

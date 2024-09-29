@@ -17,6 +17,18 @@ html, body {
     width: 100%;
     height: 100%;
     flex-grow: 1;
+    position: relative;
+    display: block;
+    outline-style: none;
+}
+
+#cesiumContainer {
+    width: 100%;
+    height: 99.5%;
+    flex-grow: 1;
+    position: relative;
+    display: none;
+    outline-style: none;
 }
 
 body {
@@ -75,6 +87,12 @@ main {
 .about {
     margin-top: 1.5%;
     margin-bottom: 1.5%;
+}
+
+#toggleView {
+    background-color: #004d99;
+    border-radius: 0%;
+    font-family: 'Nasa', sans-serif;
 }
 
 /* Estilo para ocultar el control de capas al inicio */
@@ -178,6 +196,7 @@ main {
 .events {
     flex-grow: 1;
     display: flex;
+    position: relative;
 }
 
 .event-card {
@@ -245,14 +264,6 @@ p {
     text-align: center;
     font-size: 1.1em;
     color: #333;
-}
-
-/* Formulario de contacto */
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
 }
 
 label {
@@ -323,5 +334,4 @@ ul li a:hover {
 
 .marcafin{
 color: white;
-
 }
