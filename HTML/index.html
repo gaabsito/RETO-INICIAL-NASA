@@ -138,10 +138,11 @@
             }),
             baseLayerPicker: false,  // Ocultar selector de capas por defecto
             geocoder: false,         // Ocultar el geocoder por defecto de Cesium
-            homeButton: false,
+            homeButton: true,
             sceneModePicker: false,
             timeline: false,
-            animation: false
+            animation: false,
+            fullscreenButton: false
         });
 
         // Función para alternar entre vista 2D y 3D
@@ -153,7 +154,6 @@
             if (is3DView) {
                 document.getElementById('map').style.display = 'none';
                 document.getElementById('cesiumContainer').style.display = 'block';
-                viewer.resize();
                 displayCesiumEvents(eventsData);  // Mostrar eventos en el globo 3D
                 toggleButton.textContent = 'Cambiar a Vista 2D';
             } else {
