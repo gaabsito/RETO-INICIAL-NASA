@@ -134,9 +134,6 @@
 
         // Inicializar CesiumJS en el contenedor 'cesiumContainer'
         const viewer = new Cesium.Viewer('cesiumContainer', {
-            imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-                url: 'https://a.tile.openstreetmap.org/'
-            }),
             baseLayerPicker: true,  // Selector de capas
             geocoder: true,         // Geocoder
             homeButton: true,
