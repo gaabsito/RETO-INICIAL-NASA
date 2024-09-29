@@ -140,7 +140,7 @@
             sceneModePicker: false,
             timeline: false,
             animation: false,
-            fullscreenButton: false
+            fullscreenButton: false,
         });
 
         // Función para alternar entre vista 2D y 3D
@@ -349,9 +349,9 @@
             displayVisibleEvents(filteredEventsData);
         }
 
-        // Función para agregar marcadores a Cesium
-        function addEventToCesium(event) {
-            viewer.entities.add({
+        // Función para agregar marcadores de eventos a Cesium con clustering
+        function addEventToCesium(dataSource, event) {
+            dataSource.entities.add({
                 position: Cesium.Cartesian3.fromDegrees(event.longitude, event.latitude),
                 point: {
                     pixelSize: 10,
@@ -361,10 +361,33 @@
             });
         }
 
-        // Función para mostrar eventos en Cesium
+        // Función para mostrar eventos en Cesium con clustering activado
         function displayCesiumEvents(events) {
-            viewer.entities.removeAll();  // Limpiar entidades anteriores
-            events.forEach(addEventToCesium);  // Agregar cada evento
+            // Crear un nuevo DataSource personalizado para manejar el clustering
+            const eventDataSource = new Cesium.CustomDataSource("Eventos");
+
+            // Agregar cada evento al DataSource personalizado
+            events.forEach(event => addEventToCesium(eventDataSource, event));
+
+            // Habilitar el clustering en el DataSource
+            eventDataSource.clustering.enabled = true;
+            eventDataSource.clustering.pixelRange = 100;
+            eventDataSource.clustering.minimumClusterSize = 2;
+
+            // Opcional: Personalizar la apariencia de los clusters
+            eventDataSource.clustering.clusterEvent.addEventListener((clusteredEntities, cluster) => {
+                cluster.label.show = true;  // Mostrar el número de eventos en el cluster
+                cluster.label.text = clusteredEntities.length.toString();  // Mostrar cantidad de eventos agrupados
+                cluster.point.show = true;
+                cluster.point.pixelSize = 20;  // Ajustar el tamaño del punto del cluster
+                cluster.point.color = Cesium.Color.YELLOW;  // Cambiar el color del cluster
+            });
+
+            // Limpiar entidades anteriores
+            viewer.dataSources.removeAll();
+
+            // Añadir el DataSource con el clustering activado
+            viewer.dataSources.add(eventDataSource);
         }
 
         filterButton.addEventListener('click', filterEventsByDate);
