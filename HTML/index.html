@@ -74,6 +74,7 @@
 
     <!-- Custom JS -->
     <script>
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZjQ4NTM2Ny02MjUyLTQ2OWEtOWI0Zi0wMzEzMjFmZDhhNTUiLCJpZCI6MjQ0OTM0LCJpYXQiOjE3Mjc2MTk3Nzl9.JCgYGEruFIaJKAnDe8EC4AvkAgZ2WGPiHVH-Dmm_4G8';
         let eventsData = []; // Almacena todos los eventos obtenidos de la API
         let layers = {}; // Almacena las capas por tipo de evento
         // Definir las capas base
@@ -136,8 +137,8 @@
             imageryProvider: new Cesium.OpenStreetMapImageryProvider({
                 url: 'https://a.tile.openstreetmap.org/'
             }),
-            baseLayerPicker: false,  // Ocultar selector de capas por defecto
-            geocoder: false,         // Ocultar el geocoder por defecto de Cesium
+            baseLayerPicker: true,  // Ocultar selector de capas por defecto
+            geocoder: true,         // Ocultar el geocoder por defecto de Cesium
             homeButton: true,
             sceneModePicker: false,
             timeline: false,
